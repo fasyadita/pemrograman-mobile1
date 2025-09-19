@@ -11,10 +11,14 @@ void main(List<String> arguments) {
   fixedList[1] = 2;
   fixedList[2] = 3;
   fixedList[3] = 4;
-  fixedList[4] = 5;
+  // fixedList[4] = 4;
 
   stdout.writeln(fixedList);
 
-  
+  var growList = [1,2,3];
+  growList.add(7);
+  growList.remove(3);
+
+  stdout.writeln(growList);
 
 }
