@@ -10,8 +10,11 @@ void main(List<String> arguments) {
   fixedList[0] = 1;
   fixedList[1] = 2;
   fixedList[2] = 3;
-  // fixedList[3] = 4;
+  fixedList[3] = 4;
+  fixedList[4] = 5;
 
   stdout.writeln(fixedList);
+
+  
 
 }
