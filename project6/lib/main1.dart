@@ -8,7 +8,7 @@ class FasyaApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: "My Profile & Counter Apps",
+      title: "Fasya Dita & Counter Apps",
       home: Scaffold(
         appBar: AppBar(
           title: Text("ini appBar"),
@@ -35,32 +35,46 @@ class FasyaApp extends StatelessWidget {
                 ],
               ),
               const Text("Bawah"),
-              Image.asset("assets/image/images.jpg", width:150)
+              Image.asset("assets/image/images.jpg", width:150),
+              const Text("This is zootopiaa movie",
+              style: TextStyle(
+                fontSize : 16,
+                fontWeight: FontWeight.bold,
+                color: Color.fromARGB(255, 155, 15,15),
+              ),
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              ),
+              const MyStateful(),
+              // Placeholder( fallbackHeight: 100, fallbackWidth: 100,),
             ],
           ),
         ),
 
           floatingActionButton: FloatingActionButton(
           onPressed: (){},
-          child: const Icon(Icons.add),),
+          child: const Icon(Icons.add),
+          ),
 
           drawer: Drawer(
             child :ListView(
               padding: EdgeInsets.zero,
               children: const <Widget>[
                 DrawerHeader(
-                  decoration: BoxDecoration(color: Colors.purpleAccent),
+                decoration: BoxDecoration(color: Colors.purpleAccent),
                 child: Text(
                   "Drawer Header",
                   style: TextStyle(color: Colors.deepOrangeAccent, fontSize: 24),
                   ),
                 ),
-                ListTile(leading: Icon(Icons.home), title: Text('Messages')),
+                ListTile(leading: Icon(Icons.home), title: Text('Messages'),),
                 ListTile(
                   leading: Icon(Icons.settings),
                   title: Text('Profile'),
                 ),
-                ListTile(leading: Icon(Icons.settings), title: Text("Settings!")),
+                ListTile(leading: Icon(Icons.settings), title: Text("Settings!")
+                ),
               ],
             ),
           ),
@@ -81,9 +95,42 @@ class FasyaApp extends StatelessWidget {
             ),
             ],
           ),
-
         ),
       );
+  }
+}
+
+class MyStateful extends StatefulWidget{
+  const MyStateful({super.key});
+
+  @override
+  State<MyStateful> createState() => _MyStatefulState();
+}
+
+class _MyStatefulState extends State<MyStateful>{
+  int vote = 0;
+
+  void tambah(){
+    setState((){
+      vote++;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context){
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(
+          "vote : $vote",
+          style: const TextStyle(fontSize: 16),
+        ),
+        ElevatedButton(
+          onPressed : tambah,
+          child: const Text("vote"),
+        ),
+      ],
+    );
   }
 }
 
