@@ -23,7 +23,6 @@ class ProfilPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-
       appBar: AppBar(
         title: const Text( // title pada bar yang atas
           "Profil Mahasiswa Cantik",
@@ -136,7 +135,7 @@ class ProfilPage extends StatelessWidget {
                 },
                 icon: const Icon(Icons.add_circle_outline, color: Colors.white),
                 label: const Text(
-                  "Ke Antrian ", //penamaan tombol
+                  "Antrian ", //penamaan tombol
                   style: TextStyle(fontSize: 16, color: Colors.white),
                 ),
               ),
@@ -194,7 +193,7 @@ class _CounterPageState extends State<CounterPage> {
         width: double.infinity,
         height: double.infinity,
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,// biar ditengah
           children: [
             const Text(
               'Antrian Sekarang:',
