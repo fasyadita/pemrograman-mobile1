@@ -13,10 +13,7 @@ class MahasiswaApp extends StatelessWidget {
     return MaterialApp(
       title: 'Profil Mahasiswa',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
-        useMaterial3: true,
-      ),
+      
       initialRoute: '/',
       routes: appRoutes, // dari routes.dart
     );
