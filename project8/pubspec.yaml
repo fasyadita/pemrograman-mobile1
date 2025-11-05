@@ -36,6 +36,10 @@ dependencies:
   cupertino_icons: ^1.0.8
   camera: ^0.11.3
   material_design: ^0.28.1
+  gallery_saver_plus: ^3.2.9
+  path_provider: ^2.1.2
+  path: ^1.8.3
+  image: ^4.1.7
 
 dev_dependencies:
   flutter_test:
@@ -57,7 +61,8 @@ flutter:
 
   assets:
     - assets/fonts/
-
+    - assets/images/
+    
   fonts:
   - family: doodle
     fonts:
