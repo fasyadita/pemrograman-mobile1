@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'user.dart';
 
 void main() {
+  print('=== DEBUG : check JSON Structure ===');
+
   // object dart ke json
   User user = User(
     id: 1,
@@ -12,7 +14,11 @@ void main() {
 
   Map<String, dynamic> userJson = user.toJson();
   print('User to JSON: $userJson');
+  print('Field names: ${userJson.keys.toList()}');
 
+  print('\n=== TEST : JSON to Object ===');
+
+  // gunakan field names yang sama dengan toJSon() RESULT
   // json ke object dart
   Map<String, dynamic> jsonData = {
     'id': 2,
@@ -21,10 +27,43 @@ void main() {
     'createdAt': '2024-06-01T12:34:56.000Z',
   };
 
-  User userFromJson = User.fromJson(jsonData);
-  print('User from JSON: ${userFromJson.name}');
+  // DEBUG : print JSON Structure
+  print('Json data to parse: $jsonData');
+  print('Json keys: ${jsonData.keys.toList()}');
+  print('id: ${jsonData['id']} (type: ${jsonData['id'].runtimeType})');
+  print('name: ${jsonData['name']} (type: ${jsonData['name'].runtimeType})');
+  print('email: ${jsonData['email']} (type: ${jsonData['email'].runtimeType})');
+  print('createdAt: ${jsonData['createdAt']} (type: ${jsonData['createdAt'].runtimeType})');
+
+  try {
+    User userFromJson = User.fromJson(jsonData);
+    print('✅ SUCCESS : User from JSON: ${userFromJson}');
+  } catch (e, stack) {
+    print('❌ ERROR : $e');
+    print('Stack trace: $stack');
+  }
+
+  print('\n=== TEST: Handle Missing Fields ===');
+
+  //test dengan missing fields
+  Map<String, dynamic> incompleteJson = {
+    'id': 3,
+    // 'name': 'Missing Name',
+    'email' : 'test@example.com',
+    //'createdAt': 'missing',
+  };
+
+  try {
+    User userFromIncomplete = User.fromJson(incompleteJson);
+    print('User from incomplete JSON: ${userFromIncomplete}');
+  } catch (e) {
+    print('error with incomplete JSON : $e');
+  }
+
+  // User userFromJson = User.fromJson(jsonData);
+  // print('User from JSON: ${userFromJson.name}');
   
-  runApp(const MyApp());
+  // runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
