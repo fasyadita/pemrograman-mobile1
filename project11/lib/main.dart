@@ -13,7 +13,7 @@ void main() {
   );
 
   Map<String, dynamic> userJson = user.toJson();
-  print('User to JSON: $userJson');
+  print('User.toJson() result: $userJson');
   print('Field names: ${userJson.keys.toList()}');
 
   print('\n=== TEST : JSON to Object ===');
