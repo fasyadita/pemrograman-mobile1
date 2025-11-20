@@ -1,184 +1,180 @@
 import 'package:flutter/material.dart';
-import 'user.dart';
+import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart'; // Diperlukan untuk PreferenceService
 
-void main() {
-  print('=== DEBUG : check JSON Structure ===');
-
-  // object dart ke json
-  User user = User(
-    id: 1,
-    name: 'John Doe',
-    email: 'john@example.com',
-    createdAt: DateTime.now(),
-  );
-
-  Map<String, dynamic> userJson = user.toJson();
-  print('User.toJson() result: $userJson');
-  print('Field names: ${userJson.keys.toList()}');
-
-  print('\n=== TEST : JSON to Object ===');
-
-  // gunakan field names yang sama dengan toJSon() RESULT
-  // json ke object dart
-  Map<String, dynamic> jsonData = {
-    'id': 2,
-    'name': 'Jane Doe',
-    'email': 'jane@example.com',
-    'createdAt': '2024-06-01T12:34:56.000Z',
-  };
-
-  // DEBUG : print JSON Structure
-  print('Json data to parse: $jsonData');
-  print('Json keys: ${jsonData.keys.toList()}');
-  print('id: ${jsonData['id']} (type: ${jsonData['id'].runtimeType})');
-  print('name: ${jsonData['name']} (type: ${jsonData['name'].runtimeType})');
-  print('email: ${jsonData['email']} (type: ${jsonData['email'].runtimeType})');
-  print('createdAt: ${jsonData['createdAt']} (type: ${jsonData['createdAt'].runtimeType})');
-
-  try {
-    User userFromJson = User.fromJson(jsonData);
-    print('✅ SUCCESS : User from JSON: ${userFromJson}');
-  } catch (e, stack) {
-    print('❌ ERROR : $e');
-    print('Stack trace: $stack');
-  }
-
-  print('\n=== TEST: Handle Missing Fields ===');
-
-  //test dengan missing fields
-  Map<String, dynamic> incompleteJson = {
-    'id': 3,
-    // 'name': 'Missing Name',
-    'email' : 'test@example.com',
-    //'createdAt': 'missing',
-  };
-
-  try {
-    User userFromIncomplete = User.fromJson(incompleteJson);
-    print('User from incomplete JSON: ${userFromIncomplete}');
-  } catch (e) {
-    print('error with incomplete JSON : $e');
-  }
-
-  // User userFromJson = User.fromJson(jsonData);
-  // print('User from JSON: ${userFromJson.name}');
-  
-  // runApp(const MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final prefs = PreferenceService();
+  await prefs.init(); // Inisialisasi service pada saat aplikasi dimulai
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-      ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
-    );
+      title: 'Profile Demo',
+      theme: ThemeData(primarySwatch: Colors.blue),
+      home: const ProfilePage(),
+    ); // MaterialApp
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
+class PreferenceService {
+  // Pola Singleton
+  static final PreferenceService _instance = PreferenceService._internal();
 
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
+  factory PreferenceService() => _instance;
 
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
+  PreferenceService._internal();
 
-  final String title;
+  late SharedPreferences _prefs;
 
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  // Inisialisasi SharedPreferences
+  Future<void> init() async {
+    _prefs = await SharedPreferences.getInstance();
+  }
+
+  // --- Metode untuk String ---
+  Future<bool> setString(String key, String value) async =>
+      await _prefs.setString(key, value);
+
+  String? getString(String key) => _prefs.getString(key);
+
+  // --- Metode untuk Int ---
+  Future<bool> setInt(String key, int value) async =>
+      await _prefs.setInt(key, value);
+
+  int? getInt(String key) => _prefs.getInt(key);
+
+  // --- Metode Kontrol ---
+  Future<bool> remove(String key) async => await _prefs.remove(key);
+
+  Future<bool> clear() async => await _prefs.clear();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+// --- ProfilePage StatefulWidget ---
+class ProfilePage extends StatefulWidget {
+  const ProfilePage({super.key});
 
-  void _incrementCounter() {
+  @override
+  _ProfilePageState createState() => _ProfilePageState();
+}
+
+// --- ProfilePage State ---
+class _ProfilePageState extends State<ProfilePage> {
+  // Inisialisasi Service dan Controllers
+  final PreferenceService _prefs = PreferenceService();
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+
+  // Variabel untuk menampilkan data yang tersimpan
+  String? _savedName;
+  String? _savedEmail;
+  String? _lastUpdated; // String formatted date/time
+
+  @override
+  void initState() {
+    super.initState();
+    // Panggil fungsi pemuatan data saat state dibuat
+    _loadUserData();
+  }
+
+  // --- Fungsi untuk Memuat Data ---
+  Future<void> _loadUserData() async {
+    // init() dipanggil lagi di sini untuk memastikan, 
+    // meskipun sudah dipanggil di main(), ini adalah praktik yang aman.
+    await _prefs.init(); 
+
+    // Mengambil data dan memperbarui State
     setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
+      // Mengisi field input dengan data yang tersimpan (jika ada)
+      _nameController.text = _prefs.getString('user_name') ?? '';
+      _emailController.text = _prefs.getString('user_email') ?? '';
+
+      // Menyimpan data tersimpan untuk ditampilkan di bawah form
+      _savedName = _prefs.getString('user_name');
+      _savedEmail = _prefs.getString('user_email');
+
+      // Memuat dan memformat waktu terakhir update
+      final int? lastUpdateMillis = _prefs.getInt('last_update');
+      if (lastUpdateMillis != null) {
+        final DateTime dt = DateTime.fromMillisecondsSinceEpoch(lastUpdateMillis);
+        _lastUpdated = DateFormat('dd MMM yyyy, HH:mm').format(dt);
+      } else {
+        _lastUpdated = '-';
+      }
     });
   }
 
+  // --- Fungsi untuk Menyimpan Data ---
+  Future<void> _saveUserData() async {
+    // Menyimpan data dari controller
+    await _prefs.setString('user_name', _nameController.text);
+    await _prefs.setString('user_email', _emailController.text);
+    // Menyimpan waktu update dalam milidetik sejak Epoch
+    await _prefs.setInt('last_update', DateTime.now().millisecondsSinceEpoch);
+
+    // Memuat ulang data untuk memperbarui tampilan
+    await _loadUserData();
+
+    // Menampilkan Snackbar notifikasi
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Data saved successfully!')),
+    );
+  }
+
+  // --- Build Tampilan (UI) ---
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
-      appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
+      appBar: AppBar(title: const Text('Profile')),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
         child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            const Text('You have pushed the button this many times:'),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
+            // Input form
+            TextField(
+              controller: _nameController,
+              decoration: const InputDecoration(labelText: 'Name'),
+            ),
+            TextField(
+              controller: _emailController,
+              decoration: const InputDecoration(labelText: 'Email'),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: _saveUserData,
+              child: const Text('Save'),
+            ),
+            const Divider(height: 40),
+
+            // Data yang disimpan
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text(
+                    'Data Tersimpan:',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      color: Colors.blueAccent,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text('Nama: ${_savedName ?? '-'}'),
+                  Text('Email: ${_savedEmail ?? '-'}'),
+                  Text('Terakhir diperbarui: ${_lastUpdated ?? '-'}'),
+                ],
+              ),
             ),
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
-    );
+    ); // Scaffold
   }
 }
